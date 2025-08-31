@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold Sentiment Index - India</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .dial-container {
+            position: relative;
+            width: 250px;
+            height: 125px;
+            overflow: hidden;
+        }
+        .dial-bg {
+            width: 250px;
+            height: 125px;
+            border-radius: 125px 125px 0 0;
+            background: conic-gradient(from -90deg at 50% 100%, #ef4444, #f97316, #eab308, #84cc16, #22c55e);
+        }
+        .dial-needle {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            height: 110px;
+            background-color: #1f2937;
+            transform-origin: bottom center;
+            transition: transform 1s ease-in-out;
+            border-radius: 2px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        .dial-center {
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background-color: #1f2937;
+            border-radius: 50%;
+            border: 3px solid #fff;
+        }
+        .signal-glowing {
+            animation: glow 1.5s infinite alternate;
+        }
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px var(--glow-color), 0 0 20px var(--glow-color);
+            }
+            to {
+                box-shadow: 0 0 20px var(--glow-color), 0 0 30px var(--glow-color);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-2xl mx-auto">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-yellow-500">Gold Aladdin</h1>
+            <p class="text-gray-400 mt-2">Your Daily Gold Sentiment Index for India</p>
+        </header>
+
+        <main class="bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8">
+            
+            <!-- Main GSI Display -->
+            <div class="text-center mb-8">
+                <p class="text-gray-400 text-lg">GSI Score</p>
+                <div class="flex items-center justify-center my-4">
+                    <div class="dial-container">
+                        <div class="dial-bg"></div>
+                        <div id="dial-needle" class="dial-needle"></div>
+                        <div class="dial-center"></div>
+                    </div>
+                </div>
+                <p id="gsi-value" class="text-6xl font-bold text-white">68%</p>
+                <div id="signal-box" class="mt-4 inline-block px-8 py-3 rounded-full text-2xl font-semibold transition-all duration-300">
+                    <span id="signal-text">Buy</span>
+                </div>
+            </div>
+
+            <!-- Indicators Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
+                <!-- Indicator Card 1 -->
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <p class="text-sm text-gray-400">Global Gold</p>
+                    <p id="global-gold" class="text-xl font-semibold text-green-400">Up ▲</p>
+                </div>
+                <!-- Indicator Card 2 -->
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <p class="text-sm text-gray-400">USD/INR</p>
+                    <p id="usd-inr" class="text-xl font-semibold text-green-400">Up ▲</p>
+                </div>
+                <!-- Indicator Card 3 -->
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <p class="text-sm text-gray-400">Indian Gold (MCX)</p>
+                    <p id="indian-gold" class="text-xl font-semibold text-green-400">Up ▲</p>
+                </div>
+                <!-- Indicator Card 4 -->
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <p class="text-sm text-gray-400">NIFTY 50</p>
+                    <p id="nifty" class="text-xl font-semibold text-red-400">Down ▼</p>
+                </div>
+                <!-- Indicator Card 5 -->
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <p class="text-sm text-gray-400">Seasonal Demand</p>
+                    <p id="season" class="text-xl font-semibold text-yellow-400">Neutral</p>
+                </div>
+                <!-- Indicator Card 6 -->
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <p class="text-sm text-gray-400">Monsoon</p>
+                    <p id="monsoon" class="text-xl font-semibold text-green-400">Positive</p>
+                </div>
+            </div>
+
+             <!-- How it works section -->
+            <div class="mt-8 text-center bg-gray-900/50 p-4 rounded-lg">
+                <h3 class="font-semibold text-lg text-yellow-400">How It Works</h3>
+                <p class="text-gray-400 text-sm mt-2">
+                    The GSI score is calculated by analyzing key market indicators that influence gold prices in India. A higher score suggests a positive sentiment (Buy), while a lower score suggests a negative sentiment (Sell). This is not financial advice.
+                </p>
+            </div>
+
+        </main>
+
+        <footer class="text-center mt-6 text-gray-500 text-sm">
+            <p>Last Updated: <span id="last-updated">August 30, 2025, 8:01 PM IST</span></p>
+        </footer>
+    </div>
+
+    <script>
+        // --- NEW: AUTOMATED GSI CALCULATOR ---
+
+        // STEP 1: Manually input the signal for each indicator below.
+        // Use:  1 for a POSITIVE signal for gold
+        // Use:  0 for a NEUTRAL signal
+        // Use: -1 for a NEGATIVE signal for gold
+        const manualInputs = {
+            globalGold: 1,
+            usdInr: 1,
+            indianGold: 1,
+            // IMPORTANT: For NIFTY, the logic is inverse. 
+            // If NIFTY goes DOWN, that's a POSITIVE (1) signal for gold.
+            // If NIFTY goes UP, that's a NEGATIVE (-1) signal for gold.
+            nifty: 1, 
+            season: 0,
+            monsoon: 1
+        };
+
+        // --- Configuration (You can tweak weights here later) ---
+        const config = {
+            weights: {
+                globalGold: 3,
+                usdInr: 3,
+                indianGold: 2,
+                nifty: -2, // Negative weight because of the inverse relationship
+                season: 2,
+                monsoon: 1
+            }
+        };
+
+        // STEP 2: The script does all the calculations below automatically.
+
+        function calculateGsi(inputs, config) {
+            let rawScore = 0;
+            const indicators = {};
+
+            // Calculate raw score
+            for (const key in inputs) {
+                const signal = inputs[key];
+                const weight = config.weights[key];
+                rawScore += signal * Math.abs(weight); // Use absolute weight for scoring
+                
+                // Determine text and color for UI
+                if (key === 'nifty') { // Special handling for Nifty's inverse text display
+                     indicators[key] = {
+                        text: signal === 1 ? "Down ▼" : (signal === -1 ? "Up ▲" : "Neutral"),
+                        color: signal === 1 ? "text-green-400" : (signal === -1 ? "text-red-400" : "text-yellow-400")
+                    };
+                } else if (key === 'monsoon') {
+                    indicators[key] = {
+                        text: signal === 1 ? "Positive" : (signal === -1 ? "Negative" : "Neutral"),
+                        color: signal === 1 ? "text-green-400" : (signal === -1 ? "text-red-400" : "text-yellow-400")
+                    };
+                }
+                else {
+                    indicators[key] = {
+                        text: signal === 1 ? "Up ▲" : (signal === -1 ? "Down ▼" : "Neutral"),
+                        color: signal === 1 ? "text-green-400" : (signal === -1 ? "text-red-400" : "text-yellow-400")
+                    };
+                }
+            }
+
+            // Normalize score to 0-100%
+            const maxScore = Object.values(config.weights).reduce((sum, weight) => sum + Math.abs(weight), 0);
+            const minScore = -maxScore;
+            const gsiPercentage = Math.round(((rawScore - minScore) / (maxScore - minScore)) * 100);
+
+            // Determine signal text
+            let signalText = "Hold";
+            if (gsiPercentage > 70) signalText = "Strong Buy";
+            else if (gsiPercentage > 50) signalText = "Buy";
+            else if (gsiPercentage < 40) signalText = "Sell";
+
+            return {
+                gsiPercentage,
+                signal: signalText,
+                indicators,
+                lastUpdated: new Date().toLocaleString('en-IN', { dateStyle: 'long', timeStyle: 'short', timeZone: 'Asia/Kolkata'})
+            };
+        }
+
+        function updateUI(data) {
+            // ... existing UI update code ...
+            // This function remains largely the same, but I've updated it to be more robust.
+
+            const gsiValueEl = document.getElementById('gsi-value');
+            const dialNeedleEl = document.getElementById('dial-needle');
+            gsiValueEl.textContent = `${data.gsiPercentage}%`;
+            const needleRotation = (data.gsiPercentage / 100) * 180 - 90;
+            dialNeedleEl.style.transform = `rotate(${needleRotation}deg)`;
+
+            const signalBoxEl = document.getElementById('signal-box');
+            const signalTextEl = document.getElementById('signal-text');
+            signalTextEl.textContent = data.signal;
+            
+            signalBoxEl.className = 'mt-4 inline-block px-8 py-3 rounded-full text-2xl font-semibold transition-all duration-300'; // Reset classes
+            signalBoxEl.style.setProperty('--glow-color', 'transparent');
+
+            switch (data.signal.toLowerCase()) {
+                case 'strong buy':
+                    signalBoxEl.classList.add('bg-green-500', 'signal-glowing');
+                    signalBoxEl.style.setProperty('--glow-color', '#22c55e');
+                    break;
+                case 'buy':
+                    signalBoxEl.classList.add('bg-green-500');
+                    break;
+                case 'hold':
+                    signalBoxEl.classList.add('bg-yellow-500');
+                    break;
+                case 'sell':
+                    signalBoxEl.classList.add('bg-red-500');
+                    break;
+            }
+
+            document.getElementById('global-gold').textContent = data.indicators.globalGold.text;
+            document.getElementById('global-gold').className = `text-xl font-semibold ${data.indicators.globalGold.color}`;
+            
+            document.getElementById('usd-inr').textContent = data.indicators.usdInr.text;
+            document.getElementById('usd-inr').className = `text-xl font-semibold ${data.indicators.usdInr.color}`;
+
+            document.getElementById('indian-gold').textContent = data.indicators.indianGold.text;
+            document.getElementById('indian-gold').className = `text-xl font-semibold ${data.indicators.indianGold.color}`;
+
+            document.getElementById('nifty').textContent = data.indicators.nifty.text;
+            document.getElementById('nifty').className = `text-xl font-semibold ${data.indicators.nifty.color}`;
+            
+            document.getElementById('season').textContent = data.indicators.season.text;
+            document.getElementById('season').className = `text-xl font-semibold ${data.indicators.season.color}`;
+
+            document.getElementById('monsoon').textContent = data.indicators.monsoon.text;
+            document.getElementById('monsoon').className = `text-xl font-semibold ${data.indicators.monsoon.color}`;
+
+            document.getElementById('last-updated').textContent = data.lastUpdated;
+        }
+
+        // Initial UI update on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const gsiData = calculateGsi(manualInputs, config);
+            updateUI(gsiData);
+        });
+    </script>
+</body>
+</html>
+
+
