@@ -3,3 +3,4 @@ node_modules
 
 Ignore system files
 .DS_Store
+config.js
