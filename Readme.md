@@ -45,6 +45,7 @@ node scraper.js
 Open index.html in your browser to view results.
 
 👥 Contributors
+
 You — Project Lead, researcher, tester, documentation.
 
 Gemini — Backend & scraper development.
@@ -52,6 +53,6 @@ Gemini — Backend & scraper development.
 ChatGPT (ConsultantGPT) — Architecture, planning, documentation, and frontend support.
 
 📌 Roadmap
+
 See CHANGELOG.md for detailed history.
 Upcoming: API integration, database storage, and live signal dashboard.
-

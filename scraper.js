@@ -1,5 +1,5 @@
 // Gold Aladdin - Phase 2: Backend Scraper
-// v2.0 - Switched to a lighter, faster target (Google Finance) for reliability.
+// v2.2 - Simplified the text parsing logic to match the new format from Google Finance.
 
 const puppeteer = require('puppeteer');
 
@@ -7,36 +7,38 @@ async function scrapeGlobalGoldPrice() {
     console.log('Launching browser...');
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
-
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
 
-    // --- CHANGE #1: The URL is now simpler and faster ---
     const url = 'https://www.google.com/finance/quote/XAU-USD';
     console.log(`Navigating to ${url}...`);
 
     try {
         await page.goto(url, { waitUntil: 'domcontentloaded' });
+        console.log('Page loaded. Checking for cookie consent banner...');
 
-        console.log('Page loaded. Waiting for the price data...');
-        
-        // --- CHANGE #2: A new, simpler selector for Google Finance ---
-        const percentageChangeSelector = '.YMlKec.fxKbKc';
-        
-        await page.waitForSelector(percentageChangeSelector, { timeout: 10000 });
-
-        const fullText = await page.$eval(percentageChangeSelector, el => el.textContent.trim());
-
-        console.log(`Successfully scraped raw text: "${fullText}"`);
-
-        // --- CHANGE #3: New logic to parse Google's text format, e.g., "+$10.50 (+0.45%)" ---
-        const match = fullText.match(/\((.*?)%\)/); // Find the text inside the parentheses
-
-        if (!match || !match[1]) {
-            throw new Error('Could not find percentage change in the expected format.');
+        const cookieButtonSelector = 'button[aria-label="Accept all"]';
+        try {
+            await page.waitForSelector(cookieButtonSelector, { timeout: 3000 });
+            await page.click(cookieButtonSelector);
+            console.log('Clicked "Accept all" on cookie banner.');
+            await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+        } catch (error) {
+            console.log('Cookie banner not found or already handled.');
         }
 
-        const percentageChange = parseFloat(match[1]);
+        console.log('Waiting for the price data...');
+        const percentageChangeSelector = '.JwB6zf';
+        await page.waitForSelector(percentageChangeSelector, { timeout: 20000 });
 
+        const fullText = await page.$eval(percentageChangeSelector, el => el.textContent.trim());
+        console.log(`Successfully scraped raw text: "${fullText}"`);
+
+        // --- CHANGE: Simplified parsing logic ---
+        // We no longer need a complex regular expression.
+        // parseFloat() is a built-in JS function that intelligently extracts a number from a string.
+        const percentageChange = parseFloat(fullText);
+
+        // Check if the parsing was successful. If not, parseFloat returns NaN (Not a Number).
         if (isNaN(percentageChange)) {
             throw new Error('Could not parse the percentage change into a number.');
         }
@@ -57,15 +59,6 @@ async function scrapeGlobalGoldPrice() {
     }
 }
 
-// Run the scraper function
 scrapeGlobalGoldPrice();
-```
 
-### Your New Plan
-
-1.  **Save this new code** as `scraper_v2.js` in your `GSI Engine` folder. (You can keep the old one for reference).
-2.  From your terminal, run this new file:
-    ```bash
-    node scraper_v2.js
-    
 
