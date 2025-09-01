@@ -1,0 +1,15 @@
+{
+  "lastUpdated": "2025-09-01T17:44:58.286Z",
+  "rawData": {
+    "globalGold": 0.7366088,
+    "usdInr": -0.15092908,
+    "nifty50": 0.811407,
+    "us10yBond": 0,
+    "mcxGold": 0
+  },
+  "signals": {
+    "globalGold": 1,
+    "usdInr": -1,
+    "nifty50": -1
+  }
+}
