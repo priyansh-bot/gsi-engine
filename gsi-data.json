@@ -1,17 +1,17 @@
 {
-  "lastUpdated": "2025-09-01T18:55:19.780Z",
+  "lastUpdated": "2025-09-04T18:03:36.730Z",
   "rawData": {
-    "globalGold": 0.7366088,
-    "usdInr": -0.16681589,
-    "nifty50": 0.811407,
-    "us10yBond": 0,
-    "goldBee": 1.48817
+    "globalGold": -0.93797547,
+    "usdInr": 0.13745634,
+    "nifty50": 0.07788776,
+    "goldBee": 0.3186236,
+    "us10yBond": -0.035000324
   },
   "signals": {
-    "globalGold": 1,
-    "usdInr": -1,
-    "goldBee": 1,
-    "nifty50": -1,
+    "globalGold": -1,
+    "usdInr": 0,
+    "indianGold": 1,
+    "nifty50": 0,
     "us10yBond": 0
   }
 }
